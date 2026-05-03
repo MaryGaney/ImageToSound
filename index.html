@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hearing Images — Image Sonification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-mark">♫</div>
+      <div>
+        <h1 class="site-title">Hearing Images</h1>
+        <p class="site-sub">Image-to-Sound Synthesis via Digital Signal Processing</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="#upload">Sonify</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#mapping">Mapping</a>
+      <a href="#baselines">Baselines</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <h2 class="hero-headline">What does your image <em>sound</em> like?</h2>
+        <p class="hero-body">
+          Upload any image and this system converts its visual features — brightness, color, spatial structure — into a synthesized audio signal using deterministic DSP techniques: Fourier synthesis, FIR filtering, sampling &amp; quantization.
+        </p>
+        <a href="#upload" class="cta-btn">Upload an image →</a>
+      </div>
+      <canvas id="hero-canvas" width="360" height="260" aria-hidden="true"></canvas>
+    </div>
+  </section>
+
+  <section id="pipeline" class="section">
+    <h2 class="section-title">DSP Pipeline</h2>
+    <p class="section-desc">Each stage maps directly to concepts from the course.</p>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">01</div>
+        <div class="pipe-label">Image Decode</div>
+        <div class="pipe-detail">Pixel buffer extracted via Canvas API; RGB channels separated</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">02</div>
+        <div class="pipe-label">Feature Extraction</div>
+        <div class="pipe-detail">Brightness, hue, saturation computed per column-slice</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">03</div>
+        <div class="pipe-label">Quantization</div>
+        <div class="pipe-detail">Amplitude values mid-tread quantized to N levels (HW01 method)</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">04</div>
+        <div class="pipe-label">Fourier Synthesis</div>
+        <div class="pipe-detail">Harmonics summed as Σ aₖ·exp(j2πkF₀t) (HW03 method)</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">05</div>
+        <div class="pipe-label">FIR Filtering</div>
+        <div class="pipe-detail">Sinc-based LP/HP filter applied via convolution (HW04 method)</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">06</div>
+        <div class="pipe-label">Audio Output</div>
+        <div class="pipe-detail">PCM buffer rendered via Web Audio API at Fs = 44 100 Hz</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mapping" class="section section-alt">
+    <h2 class="section-title">Feature → Sound Mapping</h2>
+    <p class="section-desc">Every visual feature maps to a specific acoustic parameter — no randomness, no ML.</p>
+    <div class="mapping-grid">
+      <div class="map-card">
+        <div class="map-visual" style="background: linear-gradient(to right, #111, #fff);"></div>
+        <div class="map-feature">Brightness (luminance)</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Amplitude</div>
+        <div class="map-note">Darker pixels → quieter; brighter → louder</div>
+      </div>
+      <div class="map-card">
+        <div class="map-visual map-visual-freq"></div>
+        <div class="map-feature">Vertical position (row)</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Fundamental frequency</div>
+        <div class="map-note">Top row = 2 000 Hz; bottom row = 200 Hz (log scale)</div>
+      </div>
+      <div class="map-card">
+        <div class="map-visual map-visual-time"></div>
+        <div class="map-feature">Horizontal position (column)</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Time progression</div>
+        <div class="map-note">Left column = t = 0; right = end of duration</div>
+      </div>
+      <div class="map-card">
+        <div class="map-visual map-visual-hue"></div>
+        <div class="map-feature">Hue (dominant color channel)</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Harmonic series</div>
+        <div class="map-note">Red → odd harmonics; Blue → even; Green → both boosted</div>
+      </div>
+      <div class="map-card">
+        <div class="map-visual map-visual-sat"></div>
+        <div class="map-feature">Saturation</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Number of harmonics (richness)</div>
+        <div class="map-note">Greyscale = 1 harmonic; fully saturated = up to 8</div>
+      </div>
+      <div class="map-card">
+        <div class="map-visual map-visual-quant"></div>
+        <div class="map-feature">Quantization levels (UI)</div>
+        <div class="map-arrow">↓</div>
+        <div class="map-param">Amplitude resolution</div>
+        <div class="map-note">Low levels → lo-fi, stepped sound; high → smooth</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="upload" class="section">
+    <h2 class="section-title">Sonify Your Image</h2>
+    <p class="section-desc">Upload an image — or use one of the test samples — then press <strong>Synthesize</strong>.</p>
+
+    <div class="app-shell">
+
+      <div class="controls-panel">
+
+        <div class="upload-zone" id="upload-zone" tabindex="0" role="button" aria-label="Upload image">
+          <span class="upload-icon">⬆</span>
+          <span class="upload-main-text">Tap to choose an image</span>
+          <span class="upload-sub-text">or drop a file here</span>
+          <input type="file" id="file-input" accept="image/*,.heic,.heif" hidden />
+        </div>
+        <div class="format-note">
+          Supported: <span class="fmt-tag">JPG</span> <span class="fmt-tag">PNG</span> <span class="fmt-tag">GIF</span> <span class="fmt-tag">WEBP</span> <span class="fmt-tag">HEIC</span> <span class="fmt-tag">HEIF</span> <span class="fmt-tag">BMP</span>
+        </div>
+
+        <div class="sample-row">
+          <span class="sample-label">Samples:</span>
+          <button class="sample-btn" data-sample="gradient">Gradient</button>
+          <button class="sample-btn" data-sample="stripes">Stripes</button>
+          <button class="sample-btn" data-sample="noise">Noise</button>
+          <button class="sample-btn" data-sample="circle">Circle</button>
+        </div>
+
+        <div class="param-group">
+          <label>
+            Duration <span class="param-val" id="dur-val">3 s</span>
+            <button class="help-btn" data-help="duration" aria-label="Learn about duration">?</button>
+          </label>
+          <input type="range" id="dur" min="1" max="8" step="1" value="3" />
+        </div>
+
+        <div class="param-group">
+          <label>
+            Quantization levels <span class="param-val" id="quant-val">32</span>
+            <button class="help-btn" data-help="quantization" aria-label="Learn about quantization">?</button>
+          </label>
+          <input type="range" id="quant" min="4" max="128" step="4" value="32" />
+        </div>
+
+        <div class="param-group">
+          <label>
+            Max harmonics <span class="param-val" id="harm-val">6</span>
+            <button class="help-btn" data-help="harmonics" aria-label="Learn about harmonics">?</button>
+          </label>
+          <input type="range" id="harm" min="1" max="12" step="1" value="6" />
+        </div>
+
+        <div class="param-group">
+          <label>
+            Filter
+            <button class="help-btn" data-help="filter" aria-label="Learn about filters">?</button>
+          </label>
+          <select id="filter-type">
+            <option value="none">None</option>
+            <option value="lowpass">Low-pass (sinc)</option>
+            <option value="highpass">High-pass (sinc)</option>
+            <option value="bandpass">Band-pass (sinc)</option>
+          </select>
+        </div>
+
+        <div class="param-group">
+          <label>
+            Baseline comparison
+            <button class="help-btn" data-help="baseline" aria-label="Learn about baselines">?</button>
+          </label>
+          <select id="baseline">
+            <option value="none">— (full system)</option>
+            <option value="amplitude">B1: Brightness → amplitude only</option>
+            <option value="random">B2: Random tones</option>
+            <option value="fixed">B3: Fixed harmonics</option>
+          </select>
+        </div>
+
+        <button class="synth-btn" id="synth-btn" disabled>Synthesize ♫</button>
+
+        <div class="playback-row" id="playback-row" hidden>
+          <button class="play-btn" id="play-btn">▶ Play</button>
+          <button class="stop-btn" id="stop-btn">■ Stop</button>
+          <a class="dl-btn" id="dl-btn" download="hearing_images.wav">↓ WAV</a>
+        </div>
+
+        <div class="progress-wrap" id="progress-wrap" hidden>
+          <div class="progress-bar" id="progress-bar"></div>
+          <span id="progress-label">Synthesizing…</span>
+        </div>
+
+      </div>
+
+      <div class="preview-panel">
+        <div class="canvas-wrap">
+          <canvas id="img-canvas" width="400" height="300" aria-label="Uploaded image preview"></canvas>
+          <canvas id="scan-line" width="400" height="300" aria-hidden="true"></canvas>
+        </div>
+        <div class="spectrum-wrap">
+          <div class="spectrum-label">Spectrum (FFT magnitude)</div>
+          <canvas id="spectrum-canvas" width="400" height="120" aria-label="Audio spectrum"></canvas>
+        </div>
+        <div class="waveform-wrap">
+          <div class="spectrum-label">Waveform</div>
+          <canvas id="waveform-canvas" width="400" height="80" aria-label="Audio waveform"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="baselines" class="section section-alt">
+    <h2 class="section-title">Baseline Comparisons</h2>
+    <p class="section-desc">Three baselines show that structured DSP mappings produce more meaningful outputs than degenerate alternatives.</p>
+    <div class="baseline-grid">
+      <div class="baseline-card">
+        <div class="bl-tag">B1</div>
+        <h3>Brightness → amplitude</h3>
+        <p>Maps overall brightness to a single sine wave amplitude. No spatial or spectral structure — every image sounds like a simple volume-varying tone. Select in the dropdown above.</p>
+      </div>
+      <div class="baseline-card">
+        <div class="bl-tag">B2</div>
+        <h3>Random tones</h3>
+        <p>Generates random frequencies and amplitudes uncorrelated with the image. Any perceptible structure in the full system must come from the image, not chance.</p>
+      </div>
+      <div class="baseline-card">
+        <div class="bl-tag">B3</div>
+        <h3>Fixed harmonics</h3>
+        <p>Synthesizes a fixed harmonic series (violin-C-style from HW03) regardless of image content. Demonstrates that timbre variation in the full system comes from image features.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="section">
+    <h2 class="section-title">About this project</h2>
+    <div class="about-grid">
+      <div class="about-block">
+        <h3>Course connection</h3>
+        <p>Every DSP step in this system maps directly to a homework assignment. Sampling &amp; quantization (HW01), convolution &amp; FIR filtering (HW02), Fourier synthesis (HW03), and ideal sinc filters (HW04) are all present as identifiable stages.</p>
+      </div>
+      <div class="about-block">
+        <h3>No machine learning</h3>
+        <p>All mappings are deterministic and hand-designed. Given the same image and the same parameters, the system always produces the same audio. There are no trained models, embeddings, or neural networks involved.</p>
+      </div>
+      <div class="about-block">
+        <h3>Implementation</h3>
+        <p>The synthesis engine (<code>dsp.js</code>) is plain JavaScript that mirrors the Python DSP code from the course: the same mid-tread quantizer, the same sinc-based FIR kernels, and the same phasor-sum harmonic synthesis — running in the browser at Fs = 44 100 Hz via Web Audio API.</p>
+      </div>
+      <div class="about-block">
+        <h3>Limitations &amp; future work</h3>
+        <p>The current system processes images column-by-column (left-to-right scan). Future improvements could include 2D spatial feature extraction, perceptual frequency scaling, and envelope shaping per-note to reduce clicks at segment boundaries.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>Mary Ganey · Hearing Images · Digital Signal Processing Final Project</p>
+  </footer>
+
+  <div id="help-overlay" class="help-overlay" hidden aria-modal="true" role="dialog">
+    <div class="help-modal">
+      <div class="help-modal-header">
+        <span class="help-modal-icon" id="help-icon">?</span>
+        <h2 class="help-modal-title" id="help-title">—</h2>
+        <button class="help-close" id="help-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="help-tabs" role="tablist">
+        <button class="help-tab active" data-tab="what" role="tab">What it does</button>
+        <button class="help-tab" data-tab="concept" role="tab">The concept</button>
+        <button class="help-tab" data-tab="math" role="tab">The math</button>
+      </div>
+
+      <div class="help-body">
+        <div class="help-pane active" id="pane-what"></div>
+        <div class="help-pane" id="pane-concept"></div>
+        <div class="help-pane" id="pane-math"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dsp.js"></script>
+  <script src="app.js"></script>
+  <script src="help.js"></script>
+</body>
+</html>
