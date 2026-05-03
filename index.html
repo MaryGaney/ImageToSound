@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hearing Images — Image Sonification</title>
+  <title>Hearing Images - Image Sonification</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
+
+  <!-- ■ ▶ ⬆ ↓ → Σ aₖ·exp(j2πkF₀t) copy paste graveyard -->
 
   <header class="site-header">
     <div class="header-inner">
@@ -33,7 +35,7 @@
       <div class="hero-text">
         <h2 class="hero-headline">What does your image <em>sound</em> like?</h2>
         <p class="hero-body">
-          Upload any image and this system converts its visual features — brightness, color, spatial structure — into a synthesized audio signal using deterministic DSP techniques: Fourier synthesis, FIR filtering, sampling &amp; quantization.
+          Upload any image and this system converts its visual features - brightness, color, spatial structure - into a synthesized audio signal using deterministic DSP techniques: Fourier synthesis, FIR filtering, sampling &amp; quantization.
         </p>
         <a href="#upload" class="cta-btn">Upload an image →</a>
       </div>
@@ -60,19 +62,19 @@
       <div class="pipe-step">
         <div class="pipe-num">03</div>
         <div class="pipe-label">Quantization</div>
-        <div class="pipe-detail">Amplitude values mid-tread quantized to N levels (HW01 method)</div>
+        <div class="pipe-detail">Amplitude values mid-tread quantized to N levels</div>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step">
         <div class="pipe-num">04</div>
         <div class="pipe-label">Fourier Synthesis</div>
-        <div class="pipe-detail">Harmonics summed as Σ aₖ·exp(j2πkF₀t) (HW03 method)</div>
+        <div class="pipe-detail">Harmonics summed as Σ aₖ·exp(j2πkF₀t)</div>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step">
         <div class="pipe-num">05</div>
         <div class="pipe-label">FIR Filtering</div>
-        <div class="pipe-detail">Sinc-based LP/HP filter applied via convolution (HW04 method)</div>
+        <div class="pipe-detail">Sinc-based LP/HP filter applied via convolution</div>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step">
@@ -85,7 +87,7 @@
 
   <section id="mapping" class="section section-alt">
     <h2 class="section-title">Feature → Sound Mapping</h2>
-    <p class="section-desc">Every visual feature maps to a specific acoustic parameter — no randomness, no ML.</p>
+    <p class="section-desc">Every visual feature maps to a specific acoustic parameter - no randomness, no ML.</p>
     <div class="mapping-grid">
       <div class="map-card">
         <div class="map-visual" style="background: linear-gradient(to right, #111, #fff);"></div>
@@ -134,7 +136,7 @@
 
   <section id="upload" class="section">
     <h2 class="section-title">Sonify Your Image</h2>
-    <p class="section-desc">Upload an image — or use one of the test samples — then press <strong>Synthesize</strong>.</p>
+    <p class="section-desc">Upload an image - or use one of the test samples - then press <strong>Synthesize</strong>.</p>
 
     <div class="app-shell">
 
@@ -201,7 +203,7 @@
             <button class="help-btn" data-help="baseline" aria-label="Learn about baselines">?</button>
           </label>
           <select id="baseline">
-            <option value="none">— (full system)</option>
+            <option value="none">- (full system)</option>
             <option value="amplitude">B1: Brightness → amplitude only</option>
             <option value="random">B2: Random tones</option>
             <option value="fixed">B3: Fixed harmonics</option>
@@ -248,7 +250,7 @@
       <div class="baseline-card">
         <div class="bl-tag">B1</div>
         <h3>Brightness → amplitude</h3>
-        <p>Maps overall brightness to a single sine wave amplitude. No spatial or spectral structure — every image sounds like a simple volume-varying tone. Select in the dropdown above.</p>
+        <p>Maps overall brightness to a single sine wave amplitude. No spatial or spectral structure - every image sounds like a simple volume-varying tone. Select in the dropdown above.</p>
       </div>
       <div class="baseline-card">
         <div class="bl-tag">B2</div>
@@ -258,7 +260,7 @@
       <div class="baseline-card">
         <div class="bl-tag">B3</div>
         <h3>Fixed harmonics</h3>
-        <p>Synthesizes a fixed harmonic series (violin-C-style from HW03) regardless of image content. Demonstrates that timbre variation in the full system comes from image features.</p>
+        <p>Synthesizes a fixed harmonic series] regardless of image content. Demonstrates that timbre variation in the full system comes from image features.</p>
       </div>
     </div>
   </section>
@@ -268,7 +270,7 @@
     <div class="about-grid">
       <div class="about-block">
         <h3>Course connection</h3>
-        <p>Every DSP step in this system maps directly to a homework assignment. Sampling &amp; quantization (HW01), convolution &amp; FIR filtering (HW02), Fourier synthesis (HW03), and ideal sinc filters (HW04) are all present as identifiable stages.</p>
+        <p>Every DSP step in this system maps directly to a homework assignment. Sampling &amp; quantization, convolution &amp; FIR filtering, Fourier synthesis, and ideal sinc filters are all present as identifiable stages.</p>
       </div>
       <div class="about-block">
         <h3>No machine learning</h3>
@@ -276,7 +278,7 @@
       </div>
       <div class="about-block">
         <h3>Implementation</h3>
-        <p>The synthesis engine (<code>dsp.js</code>) is plain JavaScript that mirrors the Python DSP code from the course: the same mid-tread quantizer, the same sinc-based FIR kernels, and the same phasor-sum harmonic synthesis — running in the browser at Fs = 44 100 Hz via Web Audio API.</p>
+        <p>The synthesis engine (<code>dsp.js</code>) is plain JavaScript that mirrors the Python DSP code from the course: the same mid-tread quantizer, the same sinc-based FIR kernels, and the same phasor-sum harmonic synthesis - running in the browser at Fs = 44 100 Hz via Web Audio API.</p>
       </div>
       <div class="about-block">
         <h3>Limitations &amp; future work</h3>
@@ -293,7 +295,7 @@
     <div class="help-modal">
       <div class="help-modal-header">
         <span class="help-modal-icon" id="help-icon">?</span>
-        <h2 class="help-modal-title" id="help-title">—</h2>
+        <h2 class="help-modal-title" id="help-title">-</h2>
         <button class="help-close" id="help-close" aria-label="Close">✕</button>
       </div>
 
